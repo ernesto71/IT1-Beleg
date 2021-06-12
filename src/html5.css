@@ -1,30 +1,27 @@
-
-body {background-color: whitesmoke}
-body {background-color: gainsboro}
-
-/*Typselektor*/
-h1,h2 {color: green}
-/*Klassenselektor*/
-.line {color: goldenrod}
-/*ID-Selektor*/
-#id1 {color: violet}
-
-figure{
-    background-color: orange;
-    margin: 1em;
-    width: 250px;
+*, *::before, *::after {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    box-sizing: border-box;
+}
+:root {
+    --hue-neutral: 200;
+    --hue-wrong: 0;
+    --hue-correct: 145;
+}
+  
+body {
+    --hue: var(--hue-neutral);
+    justify-content: center;
+    align-items: center;
+    background-color: hsl(var(--hue), 100%, 20%);
 }
 
-svg{height: 110px;}
-
 header, footer {
+    background-color: #ccc;
     min-height: 1em;
-    background: wheat;
 }
 
 /*Konfigurierung der Tasten*/
 #tasten {
-    background-color: aquamarine;
     padding: 0.5em;
 }
 
@@ -33,11 +30,6 @@ header, footer {
     width: 5em;
 }
 
-/*Kombinierter Selektor wählt alle nachfolgenden Geschwister*/
-#A ~ button{color: cornflowerblue;}
-
-/* Strukturelle Pseudoklasse*/
-p::first-letter {font-size: 200%;}
 
 /*Navi*/
 nav ul {list-style-type: none; background-color: lightgrey;}
@@ -50,17 +42,23 @@ nav ul li a:hover{
 header, article, nav, aside, footer {
     margin: 0.25em;
     padding: 0.5em;
-    border: 1px solid #ccc;
+    border: 1px;
     border-radius: 0.5em;
 }
 
-/*Fley Container für Flex Items: article, nav, aside*/
-main {background-color: grey; display:flex; }
+/*Flex Container für Flex Items: article, nav, aside*/
+main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ccc;
+}
+
 
 /*Flex Items mit Flex grow, shrink, basis*/
-nav {background: skyblue; order: 1; flex: 0 0 8em;}
-article {background: lightyellow; order:2;flex: 3 3 0%;}
-aside {background: yellowgreen; order:3;flex: 1 1 0%;}
+nav { order: 1; flex: 0 0 8em;}
+article {order:2;flex: 3 3 0%;}
+aside {order:3;flex: 1 1 0%;}
 
 /*Wenn Viewport kleiner 40 Zeichen -> eine Spalte, Reihenfolge*/
 @media all and (max-width: 40em){
@@ -71,7 +69,3 @@ aside {background: yellowgreen; order:3;flex: 1 1 0%;}
         order: 0;
     }
 }
-
-/*Automatisierte Silbentrennung
-hyphens: auto;
--webkit-hyphens: auto;*/
