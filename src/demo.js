@@ -1,95 +1,112 @@
-//Variablendeklaration notwendig
+const startButton = document.getElementById('gen-btn')
+const nextButton = document.getElementById('next-btn')
+const questionContainerElement = document.getElementById('question-container')
+const questionElement = document.getElementById('question')
+const answerButtonsElement = document.getElementById('answer-buttons')
 
-let p, v, m;
+let shuffledQuestions, currentQuestionIndex
 
-//starte erst nach vollständigem Laden der Seite
-document.addEventListener('DOMContentLoaded', function(){
-    m = new DemoModel();
-    p = new DemoPresenter();
-    v = new DemoView(p);
-    p.setModelandView(m, v);
-    setTimeout(p, start, 3000);
-});
+startButton.addEventListener('click', startGame)
+nextButton.addEventListener('click', () => {
+    currentQuestionIndex++
+    setNextQuestion()
+})
 
-//modell
-class DemoModel{
-    getTask(){
-        return "42";
-    }
+function startGame() {
+    startButton.classList.add('hide')
+    shuffledQuestions = questions.sort(() => Math.random() - .5)
+    currentQuestionIndex = 0
+    questionContainerElement.classList.remove('hide')
+    setNextQuestion()
 }
 
-//Presenter
-class DemoPresenter{
-    setModelandView(m, v) {
-        this.m = m;
-        this.v = v;
-    }
 
-    start() {
-        //Applikation beginnt hier
-        let a = m.getTask();
-        document.getElementById("idp").innerHTML = " ";
-        let b = document.getElementById("task");
-        b.innerHTML = "Aufgabe" + a;
-    }
-
-    //Eventhandling im Presenter
-    evaluate(answer){
-        console.log("Presenter -> Antwort:" +answer);
-    }
-    aufgabenWahl(nr){
-        console.log("Presenter -> Aufgabenwahl:" +nr);
-    }
+function setNextQuestion() {
+    resetState()
+    showQuestion(shuffledQuestions[currentQuestionIndex])
 }
 
-//View
-class DemoView{
-    constructor(p){
-        this.p = p;             //Presenter
-        this.setHandler();      //setzt alle Handlerfunktionen
-    }
-
-    setHandler(){
-        //Phasen: Capturing -> Target -> Bubbling
-        //use capture false -> bubbling (von unten nach oben)
-        //this soll bei Eventauslösung auf view objekt statt auf Event zeigen -> bind(this)
-        document.getElementById("tasten").addEventListener("click", this.evaluate.bind(this), false);
-        document.getElementById("tasten").addEventListener("mousedown", this.colorOn.bind(this));
-        document.getElementById("tasten").addEventListener("mouseup", this.colorOff.bind(this));
-        document.getElementById("aufgabenwahl").addEventListener("click", this.aufgabenWahl.bind(this), false);
-
-        //Vorbelegung von Inhalten
-        document.querySelectorAll("#tasten > *")[0].setAttribute("number",0);
-        document.querySelectorAll("#tasten > *")[1].setAttribute("number",1);
-        document.querySelectorAll("#tasten > *")[2].setAttribute("number",1);
-    }
-
-    aufgabenWahl(event){
-        console.log("AufgabenWahl: " +event.target.type);
-        this.p.aufgabenWahl(1);
-    }
-
-    evaluate(event){
-        console.log("View -> Evaluate: " +event.type + " " + event.target.nodeName); //Debugging
-        if(event.target.nodeName.toLowerCase() === "button"){
-            this.p.evaluate(Number(event.target.attributes.getNamedItem("number").value));
+function showQuestion(question) {
+    questionElement.innerText = question.question
+    question.answers.forEach(answer => {
+        const button = document.createElement('button')
+        button.innerText = answer.text
+        button.classList.add('btn')
+        if (answer.correct) {
+            button.dataset.correct = answer.correct
         }
-    }
+        button.addEventListener('click', selectAnswer)
+        answerButtonsElement.appendChild(button)
+    })
+}
 
-    colorOn(event){
-        //ignoriere andere als button event
-        if(event.target.nodeName.toLowerCase() === "button"){
-            this.color = event.target.style.backgroundColor;         //save color, leerer String bei Standardwert
-            console.log("colorOn: " +event.type + "color " + this.color);   //debugging 
-            if(event.target.attributes.getNamedItem("number").value === "0"){
-                event.target.style.backgroundColor = "green";
-            }else event.target.style.backgroundColor = "red";
-        }
-    }
-
-    colorOff(event){
-        console.log("ColorOff: " +event.type + "Color: " + this.color);
-        event.target.style.backgroundColor = this.color;
+function resetState() {
+    clearStatusClass(document.body)
+    nextButton.classList.add('hide')
+    while (answerButtonsElement.firstChild) {
+        answerButtonsElement.removeChild(answerButtonsElement.firstChild)
     }
 }
 
+function selectAnswer(e) {
+    const selectedButton = e.target
+    const correct = selectedButton.dataset.correct
+    setStatusClass(document.body, correct)
+    Array.from(answerButtonsElement.children).forEach(button => {
+        setStatusClass(button, button.dataset.correct)
+    })
+    if (shuffledQuestions.length > currentQuestionIndex + 1) {
+        nextButton.classList.remove('hide')
+    } else {
+        startButton.innerText = 'Restart'
+        startButton.classList.remove('hide')
+    }
+}
+
+function setStatusClass(element, correct) {
+    clearStatusClass(element)
+    if (correct) {
+        element.classList.add('correct')
+    } else {
+        element.classList.add('wrong')
+    }
+}
+
+function clearStatusClass(element) {
+    element.classList.remove('correct')
+    element.classList.remove('wrong')
+}
+
+const questions = [{
+        question: 'What is 2 + 2?',
+        answers: [
+            { text: '4', correct: true },
+            { text: '22', correct: false }
+        ]
+    },
+    {
+        question: 'Who is the best YouTuber?',
+        answers: [
+            { text: 'Web Dev Simplified', correct: true },
+            { text: 'Traversy Media', correct: true },
+            { text: 'Dev Ed', correct: true },
+            { text: 'Fun Fun Function', correct: true }
+        ]
+    },
+    {
+        question: 'Is web development fun?',
+        answers: [
+            { text: 'Kinda', correct: false },
+            { text: 'YES!!!', correct: true },
+            { text: 'Um no', correct: false },
+            { text: 'IDK', correct: false }
+        ]
+    },
+    {
+        question: 'What is 4 * 2?',
+        answers: [
+            { text: '6', correct: false },
+            { text: '8', correct: true }
+        ]
+    }
+]
